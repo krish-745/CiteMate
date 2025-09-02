@@ -7,15 +7,33 @@ import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { KnowledgeGraph } from './components/KnowledgeGraph'
 import { AlertsPanel } from './components/AlertsPanel'
 import { CollaborationNetwork } from './components/CollaborationNetwork'
+import { LoginPage } from './components/auth/LoginPage'
+import { SignupPage } from './components/auth/SignupPage'
 import { Button } from './components/ui/button'
 import { MessageCircle, Search, TrendingUp, Network, Bell, Users } from 'lucide-react'
 
 type ViewType = 'search' | 'chat' | 'analytics' | 'knowledge' | 'alerts' | 'collaboration'
+type AuthView = 'login' | 'signup'
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authView, setAuthView] = useState<AuthView>('login')
   const [activeView, setActiveView] = useState<ViewType>('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [papers, setPapers] = useState([])
+
+  const handleLogin = () => {
+    setIsAuthenticated(true)
+  }
+
+  const handleSignup = () => {
+    setIsAuthenticated(true)
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setAuthView('login')
+  }
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -108,9 +126,29 @@ export default function App() {
     setPapers(mockPapers)
   }
 
+  // Show authentication pages if not logged in
+  if (!isAuthenticated) {
+    if (authView === 'login') {
+      return (
+        <LoginPage
+          onLogin={handleLogin}
+          onShowSignup={() => setAuthView('signup')}
+        />
+      )
+    } else {
+      return (
+        <SignupPage
+          onSignup={handleSignup}
+          onShowLogin={() => setAuthView('login')}
+        />
+      )
+    }
+  }
+
+  // Show main application if authenticated
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header onLogout={handleLogout} />
       
       {/* View Toggle */}
       <div className="border-b border-border">
